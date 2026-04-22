@@ -1,7 +1,6 @@
-## 冰与火之舞轮指练习器
-
-这是一个冰与火之舞的轮指练习查看器，可以通过自定义按键查看每个按键按下的间隔，来修正自己的按键准度。
-
-### 使用方法
-
-下载zip包后在浏览器打开`index.html`。
+<div align="center">
+<img src="https://github.com/Micropue/adofai-finger-rolling-practice/blob/main/logo.png?raw=true" />
+<h1>冰与火之舞轮指练习器</h1>
+</div>
+<h3 align="center">使用方法</h3>
+下载下来后打开index.html文件
