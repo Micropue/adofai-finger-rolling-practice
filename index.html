@@ -6,127 +6,238 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A Dance of Fire and Ice 轮指练习器</title>
     <link rel="shortcut icon" href="./logo.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --fire-gradient: linear-gradient(135deg, #ff416c, #ff4b2b);
+            --ice-gradient: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            --bg-color: #0f0c29;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
         * {
             margin: 0;
-        }
-
-        html,
-        body {
-            height: 100%;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Quicksand', sans-serif;
         }
 
         body {
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #f7f7f7;
+            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0a192f, #112240);
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
+            color: white;
+            overflow: hidden;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .main {
-            background-color: white;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid rgb(213, 213, 213);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
         }
 
-        .main .logo {
+        .logo {
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 150px;
+            margin-bottom: 30px;
         }
 
-        .main .logo img {
-            width: 50px;
-            height: 50px;
+        .logo img {
+            width: 60px;
+            height: 60px;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+            animation: rotate 10s linear infinite;
         }
 
-        .main .logo h1 {
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .logo h1 {
             margin-left: 20px;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            background: linear-gradient(to right, #ff4b2b, #00d2ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        button {
-            border: none;
-            background-color: black;
-            border: 2px solid black;
-            color: white;
-            font-size: 1rem;
-            font-weight: 900;
-            padding: 7px 20px;
-            border-radius: calc(infinity * 1px);
-            cursor: pointer;
-            transition: all 0.3s;
+        .kps-container {
+            margin: 20px 0;
         }
 
-        button:hover {
-            transform: scale(1.05)
+        .kps {
+            font-size: 3rem;
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            transition: all 0.1s ease;
+        }
+
+        .kps.pulse {
+            transform: scale(1.1);
+            color: #ff9f43;
         }
 
         .keyviewer {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 20px;
+            margin-top: 30px;
         }
 
-        .keyboard-view {
-            overflow: hidden;
-            display: flex;
-            align-items: end;
-            height: 800px;
-            margin-top: 20px;
+        .controls {
+            margin-bottom: 30px;
         }
 
-        .keyboard-view .key {
-            border: 2px solid black;
-            font-weight: 900;
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2em;
-            border-radius: 10px;
-            margin: 0 10px;
-            position: relative;
-        }
-
-        .keyboard-view .key.active {
-            background-color: black;
+        button {
+            border: none;
             color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin: 0 10px;
         }
 
-        .clickview {
-            height: 10px;
-            background-color: rgb(237, 237, 237);
-            margin-top: 20px;
-            display: flex;
-            padding: 10px;
-            overflow: hidden;
-            max-width: 100%;
-            justify-content: end;
-        }
-
-        .clickview .cl {
-            width: 10px;
-            height: 100%;
-            background-color: rgb(255, 0, 0);
-            border-radius: 10px;
+        .set-key {
+            background: var(--fire-gradient);
+            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
         }
 
         .cancel-key {
-            background-color: rgba(255, 0, 0, 0.304);
-            color: red;
-            border: 2px solid rgba(255, 0, 0, 0.304);
+            background: var(--ice-gradient);
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .keyboard-view {
+            display: flex;
+            align-items: flex-end;
+            height: 350px;
+            /* Reduced for better layout */
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .key {
+            width: 70px;
+            height: 70px;
+            border: 2px solid var(--glass-border);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.1s ease;
+        }
+
+        .key.fire {
+            border-color: rgba(255, 75, 43, 0.5);
+            color: #ff4b2b;
+        }
+
+        .key.ice {
+            border-color: rgba(0, 210, 255, 0.5);
+            color: #00d2ff;
+        }
+
+        .key.active {
+            transform: scale(0.9);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .key.fire.active {
+            box-shadow: 0 0 20px rgba(255, 75, 43, 0.6);
+        }
+
+        .key.ice.active {
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.6);
         }
 
         .rain {
-            background-color: rgba(0, 0, 0, 0.661);
             position: absolute;
             width: 100%;
             bottom: calc(100% + 10px);
-            border-radius: 3px;
+            border-radius: 8px;
+            opacity: 0.8;
+            filter: blur(1px);
+        }
+
+        .fire-rain {
+            background: var(--fire-gradient);
+            box-shadow: 0 0 10px rgba(255, 75, 43, 0.5);
+        }
+
+        .ice-rain {
+            background: var(--ice-gradient);
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        }
+
+        .clickview {
+            height: 40px;
+            background: rgba(0, 0, 0, 0.2);
+            margin-top: 30px;
+            border-radius: 10px;
+            display: flex;
+            padding: 5px;
+            overflow: hidden;
+            justify-content: flex-end;
+            border: 1px solid var(--glass-border);
+        }
+
+        .cl {
+            width: 6px;
+            height: 100%;
+            border-radius: 10px;
+            margin: 0 2px;
+            flex-shrink: 0;
+        }
+
+        .cl-fire {
+            background: var(--fire-gradient);
+        }
+
+        .cl-ice {
+            background: var(--ice-gradient);
         }
     </style>
 </head>
@@ -135,28 +246,22 @@
     <div class="main">
         <div class="logo">
             <img src="./logo.png" alt="logo">
-            <h1>A Dance of Fire and Ice 轮指练习器</h1>
+            <h1>A Dance of Fire and Ice</h1>
         </div>
-        <h1 class="kps" style="width: fit-content; margin: auto;">KPS: 0</h1>
+        <div class="kps-container">
+            <div class="kps">KPS: 0</div>
+        </div>
         <div class="keyviewer">
-            <button class="set-key">设置键位</button>
-            <button class="cancel-key" style="display: none;">设置完成</button>
+            <div class="controls">
+                <button class="set-key">设置键位 / Set Keys</button>
+                <button class="cancel-key" style="display: none;">设置完成 / Done</button>
+            </div>
             <div class="keyboard-view">
-                <!-- <div class="key">A</div>
-                <div class="key">W</div>
-                <div class="key">E</div>
-                <div class="key">F</div>
-                <div class="key">K</div>
-                <div class="key">O</div>
-                <div class="key">P</div>
-                <div class="key">"</div> -->
+                <!-- Keys will be injected here -->
             </div>
         </div>
         <div class="clickview">
-            <!-- <div class="cl"></div>
-            <div class="cl"></div>
-            <div class="cl"></div>
-            <div class="cl"></div> -->
+            <!-- Hits will be injected here -->
         </div>
     </div>
     <script>
@@ -165,115 +270,135 @@
         const keyboardView = document.querySelector(".keyboard-view")
         const clickview = document.querySelector(".clickview")
         const kps = document.querySelector(".kps")
-        const keys = localStorage.getItem("keys").split(",")
-        keys.forEach(putToDom)
-        function putToDom(key) {
+
+        // Initialize keys from localStorage
+        let keys = []
+        try {
+            const saved = localStorage.getItem("keys")
+            keys = saved ? saved.split(",") : []
+        } catch (e) {
+            keys = []
+        }
+
+        keys.forEach((key, index) => putToDom(key, index))
+
+        function putToDom(key, index) {
             const ele = document.createElement("div")
-            ele.innerText = key
-            ele.className = 'key'
+            ele.innerText = key.toUpperCase()
+            // Alternate between fire and ice classes
+            const type = index % 2 === 0 ? 'fire' : 'ice'
+            ele.className = `key ${type}`
             keyboardView.append(ele)
         }
+
         function collectKeys() {
             const abortController = new AbortController()
             window.addEventListener("keydown", e => {
-                if (keys.length >= 8) return
+                // Prevent duplicate keys and limit to 8
+                if (keys.length >= 8 || keys.includes(e.key)) return
                 keys.push(e.key)
-                putToDom(e.key)
+                putToDom(e.key, keys.length - 1)
                 localStorage.setItem("keys", keys.join(","))
             }, {
                 signal: abortController.signal
             })
             return abortController
         }
+
         setKeyButton.onclick = () => {
             setKeyButton.style.display = 'none'
-            cancelKeyButton.style.display = 'initial'
+            cancelKeyButton.style.display = 'inline-block'
             keyboardView.innerHTML = "";
-            keys.length = 0
+            keys = []
             const abort = collectKeys()
             cancelKeyButton.onclick = () => {
-                setKeyButton.style.display = 'initial'
+                setKeyButton.style.display = 'inline-block'
                 cancelKeyButton.style.display = 'none'
                 abort.abort()
             }
         }
+
         const ev = new Map()
-        let kpsInterval
-        let time = 1
-        let keypressed = 0
-        let intervalsetted = false
-        const inter = debounce(() => {
-            time = 1
-            keypressed = 0
-            intervalsetted = false
-            clearInterval(kpsInterval)
-        })
+        let pressTimestamps = []
+
         window.addEventListener("keydown", e => {
-            const keys = document.querySelectorAll(".key")
-            keys.forEach(i => {
-                if (i.innerText != e.key || [...i.classList].includes("active")) return
+            const keyEles = document.querySelectorAll(".key")
+            keyEles.forEach((i, index) => {
+                if (i.innerText.toLowerCase() !== e.key.toLowerCase() || i.classList.contains("active")) return
+
+                const isFire = i.classList.contains("fire")
+                const typeClass = isFire ? "fire" : "ice"
+
                 i.classList.add("active")
+
+                // KPS Pulse effect
+                kps.classList.add("pulse")
+                setTimeout(() => kps.classList.remove("pulse"), 50)
+
+                // Rain (Trail) Animation
                 const rain = document.createElement("div")
-                rain.classList.add("rain")
+                rain.classList.add("rain", `${typeClass}-rain`)
                 i.append(rain)
+
                 let up = 0
-                const interval = setInterval(() => {
-                    rain.style.height = `${up += 2}px`
+                const rainInterval = setInterval(() => {
+                    if (up < 400) {
+                        up += 4
+                        rain.style.height = `${up}px`
+                    }
                 }, 4)
-                const abort = new AbortController()
-                if (ev.get(i)) {
-                    ev.get(i).abort()
-                }
-                ev.set(i, abort)
+
+                // Click Visual (Bottom Bar)
                 const cl = document.createElement("div")
-                cl.classList.add("cl")
+                cl.classList.add("cl", `cl-${typeClass}`)
                 clickview.append(cl)
+
                 let clX = 0
                 const clInter = setInterval(() => {
+                    clX += 3
                     if (clX >= 800) {
                         cl.remove()
                         clearInterval(clInter)
                     }
-                    cl.style.transform = `translateX(-${clX += 2}px)`
+                    cl.style.transform = `translateX(-${clX}px)`
                 }, 4)
-                window.addEventListener("keyup", e => {
-                    if (e.key === i.innerText) {
+
+                // Handle Key Up for this specific key
+                const abort = new AbortController()
+                if (ev.get(i)) ev.get(i).abort()
+                ev.set(i, abort)
+
+                window.addEventListener("keyup", (upEvent) => {
+                    if (upEvent.key.toLowerCase() === i.innerText.toLowerCase()) {
                         i.classList.remove("active")
-                        clearInterval(interval)
-                        let up = 0
-                        const interval1 = setInterval(() => {
-                            if (up >= 800) {
+                        clearInterval(rainInterval)
+
+                        let fadeOut = 0
+                        const fadeInterval = setInterval(() => {
+                            fadeOut += 5
+                            if (fadeOut >= 400) {
                                 rain.remove()
-                                clearInterval(interval1)
+                                clearInterval(fadeInterval)
                             }
-                            rain.style.transform = `translateY(-${up += 2}px)`
+                            rain.style.transform = `translateY(-${fadeOut}px)`
+                            rain.style.opacity = 1 - (fadeOut / 400)
                         }, 4)
+                        abort.abort()
                     }
-                }, {
-                    signal: abort.signal
-                })
-                keypressed++
-                if (!intervalsetted) {
-                    intervalsetted = true
-                    kpsInterval = setInterval(() => {
-                        time++
-                    }, 1000)
-                }
-                inter()
+                }, { signal: abort.signal })
+
+                // Accurate KPS Calculation using sliding window
+                pressTimestamps.push(Date.now())
             })
         })
-        function debounce(fn) {
-            let timeout
-            return (...args) => {
-                clearTimeout(timeout)
-                timeout = setTimeout(() => {
-                    fn(...args)
-                }, 1000)
-            }
-        }
+
+        // Update KPS display 60 times per second for smoothness
         setInterval(() => {
-            kps.innerText = `KPS: ${Number.isNaN(keypressed / time) ? 0 : parseInt(keypressed / time)}`
-        }, 100)
+            const now = Date.now()
+            // Filter out timestamps older than 1 second
+            pressTimestamps = pressTimestamps.filter(t => now - t < 1000)
+            kps.innerText = `KPS: ${pressTimestamps.length}`
+        }, 16)
     </script>
 </body>
 
