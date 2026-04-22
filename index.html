@@ -113,6 +113,53 @@
 
         .controls {
             margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .bpm-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .bpm-controls input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 60px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .bpm-controls input:focus {
+            border-color: #00d2ff;
+        }
+
+        .btn-metronome {
+            background: var(--ice-gradient);
+            padding: 8px 20px;
+            font-size: 0.9rem;
+        }
+
+        .btn-metronome.active {
+            background: var(--fire-gradient);
+            box-shadow: 0 0 15px rgba(255, 65, 108, 0.5);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
         }
 
         button {
@@ -239,6 +286,14 @@
         .cl-ice {
             background: var(--ice-gradient);
         }
+
+        .cl-perfect {
+            background: white;
+            box-shadow: 0 0 10px white;
+            opacity: 0.5;
+            width: 8px;
+            z-index: 10;
+        }
     </style>
 </head>
 
@@ -253,8 +308,17 @@
         </div>
         <div class="keyviewer">
             <div class="controls">
-                <button class="set-key">设置键位 / Set Keys</button>
-                <button class="cancel-key" style="display: none;">设置完成 / Done</button>
+                <div class="bpm-controls">
+                    <label for="bpm-input">BPM:</label>
+                    <input type="number" id="bpm-input" value="120" min="1" max="999">
+                    <label for="vol-input" style="margin-left: 10px;">音量 / Vol:</label>
+                    <input type="range" id="vol-input" value="1.0" min="0" max="2" step="0.1" style="width: 80px; vertical-align: middle;">
+                    <button class="btn-metronome">开启节拍器 / Start Metronome</button>
+                </div>
+                <div class="button-group">
+                    <button class="set-key">设置键位 / Set Keys</button>
+                    <button class="cancel-key" style="display: none;">设置完成 / Done</button>
+                </div>
             </div>
             <div class="keyboard-view">
                 <!-- Keys will be injected here -->
@@ -399,6 +463,77 @@
             pressTimestamps = pressTimestamps.filter(t => now - t < 1000)
             kps.innerText = `KPS: ${pressTimestamps.length}`
         }, 16)
+
+        // --- Metronome Logic ---
+        let audioCtx = null;
+        let metronomeInterval = null;
+        let lastBeatTime = 0;
+        let currentIntervalMs = 0;
+        const bpmInput = document.getElementById('bpm-input');
+        const volInput = document.getElementById('vol-input');
+        const metronomeBtn = document.querySelector('.btn-metronome');
+
+        function playDrumSound() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            lastBeatTime = Date.now();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const volume = parseFloat(volInput.value);
+
+            osc.type = 'triangle'; // Triangle is punchier and louder
+            // Metronome frequency drop (sharper click)
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
+
+            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+
+            // Visual indicator for the "perfect" beat
+            const cl = document.createElement("div");
+            cl.classList.add("cl", "cl-perfect");
+            clickview.append(cl);
+
+            let clX = 0;
+            const clInter = setInterval(() => {
+                clX += 3;
+                if (clX >= 800) {
+                    cl.remove();
+                    clearInterval(clInter);
+                }
+                cl.style.transform = `translateX(-${clX}px)`;
+            }, 4);
+        }
+
+        metronomeBtn.onclick = () => {
+            if (metronomeInterval) {
+                // Stop
+                clearInterval(metronomeInterval);
+                metronomeInterval = null;
+                metronomeBtn.innerText = '开启节拍器 / Start Metronome';
+                metronomeBtn.classList.remove('active');
+            } else {
+                // Start
+                const bpm = parseInt(bpmInput.value) || 120;
+                const intervalMs = 60000 / bpm;
+                
+                // Initialize audio on user interaction
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                
+                playDrumSound(); // Play first beat immediately
+                metronomeInterval = setInterval(playDrumSound, intervalMs);
+                
+                metronomeBtn.innerText = '停止节拍器 / Stop Metronome';
+                metronomeBtn.classList.add('active');
+            }
+        };
     </script>
 </body>
 
