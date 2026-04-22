@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Dance of Fire and Ice 轮指练习器</title>
+    <link rel="shortcut icon" href="./logo.png" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f7f7f7;
+        }
+
+        .main {
+            background-color: white;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgb(213, 213, 213);
+        }
+
+        .main .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 150px;
+        }
+
+        .main .logo img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .main .logo h1 {
+            margin-left: 20px;
+        }
+
+        button {
+            border: none;
+            background-color: black;
+            border: 2px solid black;
+            color: white;
+            font-size: 1rem;
+            font-weight: 900;
+            padding: 7px 20px;
+            border-radius: calc(infinity * 1px);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05)
+        }
+
+        .keyviewer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .keyboard-view {
+            overflow: hidden;
+            display: flex;
+            align-items: end;
+            height: 800px;
+            margin-top: 20px;
+        }
+
+        .keyboard-view .key {
+            border: 2px solid black;
+            font-weight: 900;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            border-radius: 10px;
+            margin: 0 10px;
+            position: relative;
+        }
+
+        .keyboard-view .key.active {
+            background-color: black;
+            color: white;
+        }
+
+        .clickview {
+            height: 10px;
+            background-color: rgb(237, 237, 237);
+            margin-top: 20px;
+            display: flex;
+            padding: 10px;
+            overflow: hidden;
+            max-width: 100%;
+            justify-content: end;
+        }
+
+        .clickview .cl {
+            width: 10px;
+            height: 100%;
+            background-color: rgb(255, 0, 0);
+            border-radius: 10px;
+        }
+
+        .cancel-key {
+            background-color: rgba(255, 0, 0, 0.304);
+            color: red;
+            border: 2px solid rgba(255, 0, 0, 0.304);
+        }
+
+        .rain {
+            background-color: rgba(0, 0, 0, 0.661);
+            position: absolute;
+            width: 100%;
+            bottom: calc(100% + 10px);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <div class="logo">
+            <img src="./logo.png" alt="logo">
+            <h1>A Dance of Fire and Ice 轮指练习器</h1>
+        </div>
+        <h1 class="kps" style="width: fit-content; margin: auto;">KPS: 0</h1>
+        <div class="keyviewer">
+            <button class="set-key">设置键位</button>
+            <button class="cancel-key" style="display: none;">设置完成</button>
+            <div class="keyboard-view">
+                <!-- <div class="key">A</div>
+                <div class="key">W</div>
+                <div class="key">E</div>
+                <div class="key">F</div>
+                <div class="key">K</div>
+                <div class="key">O</div>
+                <div class="key">P</div>
+                <div class="key">"</div> -->
+            </div>
+        </div>
+        <div class="clickview">
+            <!-- <div class="cl"></div>
+            <div class="cl"></div>
+            <div class="cl"></div>
+            <div class="cl"></div> -->
+        </div>
+    </div>
+    <script>
+        const setKeyButton = document.querySelector(".set-key")
+        const cancelKeyButton = document.querySelector(".cancel-key")
+        const keyboardView = document.querySelector(".keyboard-view")
+        const clickview = document.querySelector(".clickview")
+        const kps = document.querySelector(".kps")
+        const keys = localStorage.getItem("keys").split(",")
+        keys.forEach(putToDom)
+        function putToDom(key) {
+            const ele = document.createElement("div")
+            ele.innerText = key
+            ele.className = 'key'
+            keyboardView.append(ele)
+        }
+        function collectKeys() {
+            const abortController = new AbortController()
+            window.addEventListener("keydown", e => {
+                if (keys.length >= 8) return
+                keys.push(e.key)
+                putToDom(e.key)
+                localStorage.setItem("keys", keys.join(","))
+            }, {
+                signal: abortController.signal
+            })
+            return abortController
+        }
+        setKeyButton.onclick = () => {
+            setKeyButton.style.display = 'none'
+            cancelKeyButton.style.display = 'initial'
+            keyboardView.innerHTML = "";
+            keys.length = 0
+            const abort = collectKeys()
+            cancelKeyButton.onclick = () => {
+                setKeyButton.style.display = 'initial'
+                cancelKeyButton.style.display = 'none'
+                abort.abort()
+            }
+        }
+        const ev = new Map()
+        let kpsInterval
+        let time = 1
+        let keypressed = 0
+        let intervalsetted = false
+        const inter = debounce(() => {
+            time = 1
+            keypressed = 0
+            intervalsetted = false
+            clearInterval(kpsInterval)
+        })
+        window.addEventListener("keydown", e => {
+            const keys = document.querySelectorAll(".key")
+            keys.forEach(i => {
+                if (i.innerText != e.key || [...i.classList].includes("active")) return
+                i.classList.add("active")
+                const rain = document.createElement("div")
+                rain.classList.add("rain")
+                i.append(rain)
+                let up = 0
+                const interval = setInterval(() => {
+                    rain.style.height = `${up += 2}px`
+                }, 4)
+                const abort = new AbortController()
+                if (ev.get(i)) {
+                    ev.get(i).abort()
+                }
+                ev.set(i, abort)
+                const cl = document.createElement("div")
+                cl.classList.add("cl")
+                clickview.append(cl)
+                let clX = 0
+                const clInter = setInterval(() => {
+                    if (clX >= 800) {
+                        cl.remove()
+                        clearInterval(clInter)
+                    }
+                    cl.style.transform = `translateX(-${clX += 2}px)`
+                }, 4)
+                window.addEventListener("keyup", e => {
+                    if (e.key === i.innerText) {
+                        i.classList.remove("active")
+                        clearInterval(interval)
+                        let up = 0
+                        const interval1 = setInterval(() => {
+                            if (up >= 800) {
+                                rain.remove()
+                                clearInterval(interval1)
+                            }
+                            rain.style.transform = `translateY(-${up += 2}px)`
+                        }, 4)
+                    }
+                }, {
+                    signal: abort.signal
+                })
+                keypressed++
+                if (!intervalsetted) {
+                    intervalsetted = true
+                    kpsInterval = setInterval(() => {
+                        time++
+                    }, 1000)
+                }
+                inter()
+            })
+        })
+        function debounce(fn) {
+            let timeout
+            return (...args) => {
+                clearTimeout(timeout)
+                timeout = setTimeout(() => {
+                    fn(...args)
+                }, 1000)
+            }
+        }
+        setInterval(() => {
+            kps.innerText = `KPS: ${Number.isNaN(keypressed / time) ? 0 : parseInt(keypressed / time)}`
+        }, 100)
+    </script>
+</body>
+
+</html>
